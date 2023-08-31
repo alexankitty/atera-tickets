@@ -14,3 +14,4 @@ companyname/emailstring ticket title and details
 ```
 If the email matches it will create a ticket under that contact, if it does not, it'll warn you in the output.  
 Once the script finishes, it will rewrite your tickets.txt with all of the failed ticket submissions.  
+For simplicity, a batch and shell script are also included so you can run the script faster.
