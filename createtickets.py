@@ -41,9 +41,9 @@ def submitTickets(tickets):
             else:
                 title = title + word + " "
                 itr += 1
-        #resultFailure = createTicket(customer, title, techId)
-        #if resultFailure:
-        #    failedTickets.append(ticket)
+        resultFailure = createTicket(customer, title, techId)
+        if resultFailure:
+            failedTickets.append(ticket)
     return failedTickets
 
 def writeFailedTickets(filePath, tickets):
@@ -117,7 +117,7 @@ def apiPost(url, data):
 def main():
     tickets = readTickets(ticketFilePath)
     failedTickets = submitTickets(tickets)
-    #writeFailedTickets(ticketFilePath, failedTickets)
+    writeFailedTickets(ticketFilePath, failedTickets)
 
 ### make it run
 main()
