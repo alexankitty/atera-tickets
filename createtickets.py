@@ -3,7 +3,7 @@ import requests
 apifile = open("apikey")
 ticketFilePath = "tickets.txt"
 apikey = apifile.read()
-## Used to get the technician contact ID
+## Used to get the technician ID
 techTicket = 23367
 
 #Globals
@@ -35,11 +35,15 @@ def submitTickets(tickets):
         customer = ""
         title = ""
         for word in words:
+            word.strip()# strip whitespace
             if itr == 0:
                 customer = word
                 itr += 1
+            elif itr == 1:
+                title = word
+                itr += 1
             else:
-                title = title + word + " "
+                title = title + " " + word
                 itr += 1
         resultFailure = createTicket(customer, title, techId)
         if resultFailure:
