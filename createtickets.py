@@ -35,7 +35,7 @@ def submitTickets(tickets):
         customer = ""
         title = ""
         for word in words:
-            word.strip()# strip whitespace
+            word = word.splitlines()[0] #drop new line
             if itr == 0:
                 customer = word
                 itr += 1
@@ -59,7 +59,9 @@ def writeFailedTickets(filePath, tickets):
 ### Parameters: customer name, ticket title, tech id
 ### Creates and returns a response for the Atera API to create a ticket.
 def createTicket(customerName, ticketTitle, techId):
-    endUserId = getEndUserId(customerName)
+    endUser = getEndUser(customerName)
+    endUserId = endUser['EndUserID']
+    endUserCompany = endUser['CustomerName']
     if not endUserId:
         print(f"{response.status_code}: Failed to create ticket '{ticketTitle}, user {customerName} not found.'")
         return 1
@@ -77,18 +79,18 @@ def createTicket(customerName, ticketTitle, techId):
     if response.status_code != requests.codes.created:
         print(f"{response.status_code}: Failed to create ticket '{ticketTitle}'")
         return 1
-    print(f"Created ticket {response.json()['ActionID']} for {ticketTitle}.")
+    print(f"Created ticket {response.json()['ActionID']} for {ticketTitle} ({endUserCompany}).")
     return 0
 
 ### Function
 ### Parameters: email search query
 ### Checks the API for a matching user email and selects the first one.
-def getEndUserId(search):
+def getEndUser(search):
     url = contactsURL + f"?itemsInPage=1&searchOptions.email={search}"
     response = apiGet(url)
     items = response.json()['items']
     if len(items):
-        return items[0]['EndUserID']
+        return items[0]
     return 0
 
 ### Function
