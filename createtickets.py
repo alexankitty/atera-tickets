@@ -60,11 +60,12 @@ def writeFailedTickets(filePath, tickets):
 ### Creates and returns a response for the Atera API to create a ticket.
 def createTicket(customerName, ticketTitle, techId):
     endUser = getEndUser(customerName)
+    if not endUser:
+        print(f"Failed to create ticket '{ticketTitle}', user {customerName} not found.")
+        return 1
     endUserId = endUser['EndUserID']
     endUserCompany = endUser['CustomerName']
-    if not endUserId:
-        print(f"{response.status_code}: Failed to create ticket '{ticketTitle}, user {customerName} not found.'")
-        return 1
+
     data = {
         "TicketTitle": ticketTitle,
         "Description": ticketTitle,
