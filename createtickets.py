@@ -4,7 +4,7 @@ apifile = open("apikey")
 ticketFilePath = "tickets.txt"
 apikey = apifile.read()
 ## Used to get the technician ID
-techTicket = 23367
+techTicket = 34669
 
 #Globals
 headers = {
@@ -99,6 +99,9 @@ def getEndUser(search):
 ### Gets and returns the tech contact ID from a ticket the tech has made.
 def getTechIdFromTicket(ticket):
     response = apiGet(ticketsURL + f"/{ticket}")
+    if response.json() is None:
+        print("Technician not found, check your reference ticket.")
+        exit()
     return response.json()['TechnicianContactID']
 
 ### Function
