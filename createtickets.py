@@ -5,8 +5,7 @@ apifile = open("apikey")
 ticketFilePath = "tickets.txt"
 apikey = apifile.read()
 ## Used to get the technician ID
-techTicket = 36530
-techEmail = ""
+techEmail = "alexandra@techsupportevolved.com"
 jobs = 5
 
 #Globals
@@ -19,49 +18,25 @@ ticketsURL = ateraAPIv3 + "tickets"
 contactsURL = ateraAPIv3 + "contacts"
 
 ### Functions
-
-### Function
-### Parameters: filePath
-### Reads tickets from txt file and parses out customer in first word, and ticket title in the rest.
-def readTickets(filePath):
-    ### todo: write function
+def readTickets(filePath: str) -> list:
     with open(filePath, "r") as f:
         tickets = f.readlines()
     return tickets
 
-def submitTickets(tickets):
-    techId = getTechIdFromTicket(techTicket)
-    failedTickets = [None] * 0
-    for ticket in tickets:
-        words = ticket.split(" ")
-        itr = 0
-        customer = ""
-        title = ""
-        for word in words:
-            word = word.splitlines()[0] #drop new line
-            if itr == 0:
-                customer = word
-                itr += 1
-            elif itr == 1:
-                title = word
-                itr += 1
-            else:
-                title = title + " " + word
-                itr += 1
-        resultFailure = createTicket(customer, title, techId)
+def submitTickets(tickets: list) -> list:
+    failedTickets = []
+    results = Parallel(n_jobs=jobs)(delayed(postTicket)(ticket) for ticket in tickets)
+    for ticket, resultFailure in zip(tickets, results):
         if resultFailure:
             failedTickets.append(ticket)
     return failedTickets
 
-def writeFailedTickets(filePath, tickets):
+def writeFailedTickets(filePath: str, tickets: list):
     with open(filePath, 'w') as f:
         for ticket in tickets:
             f.write(f"{ticket}\n")
 
-### Function
-### Parameters: customer name, ticket title, tech id
-### Creates and returns a response for the Atera API to create a ticket.
-def createTicket(customerName, ticketTitle, techId):
+def createTicket(customerName: str, ticketTitle: str) -> int:
     endUser = getEndUser(customerName)
     if not endUser:
         print(f"Failed to create ticket '{ticketTitle}', user {customerName} not found.")
@@ -72,12 +47,7 @@ def createTicket(customerName, ticketTitle, techId):
     data = {
         "TicketTitle": ticketTitle,
         "Description": ticketTitle,
-        #"TicketPriority": "Low",
-        #"TicketImpact": "NoImpact",
-        #"TicketStatus": "Open",
-        #"TicketType": "Incident",
         "EndUserID": endUserId,
-        #"TechnicianContactID": techId
         "TechnicianEmail": techEmail
     }
     response = apiPost(ticketsURL, data)
@@ -88,10 +58,7 @@ def createTicket(customerName, ticketTitle, techId):
     print(f"Created ticket {response.json()['ActionID']} for {ticketTitle} ({endUserCompany}).")
     return 0
 
-### Function
-### Parameters: email search query
-### Checks the API for a matching user email and selects the first one.
-def getEndUser(search):
+def getEndUser(search: str) -> dict:
     url = contactsURL + f"?itemsInPage=1&searchOptions.email={search}"
     response = apiGet(url)
     items = response.json()['items']
@@ -99,40 +66,46 @@ def getEndUser(search):
         return items[0]
     return 0
 
-### Function
-### Parameters: ticket number
-### Gets and returns the tech contact ID from a ticket the tech has made.
-def getTechIdFromTicket(ticket):
-    response = apiGet(ticketsURL + f"/{ticket}")
-    if response.json() is None:
-        print("Technician not found, check your reference ticket.")
-        exit()
-    return response.json()['TechnicianContactID']
-
-### Function
-### Parameters: endpointURL
-### Gets the response from an endpoint url
-def apiGet(url):
+def apiGet(url: str) -> requests.Response:
     response = requests.get(url, headers=headers)
     if response.status_code >= 400:
         print(f"{response.status_code}: Request failure to {url}")
     return response
 
-### Function
-### Parameters: endpointURL jsonFormattedData
-### Posts a json formatted message to an API Endpoint URL
-def apiPost(url, data):
+def apiPost(url: str, data: dict)-> requests.Response:
     response = requests.post(url, headers=headers, json=data)
     if response.status_code >= 400:
         print(f"{response.status_code}: Request failure to {url}. {response.content}")
     return response
 
+def parseTicket(ticket: str) -> tuple:
+    words = ticket.split(" ")
+    itr = 0
+    customer = ""
+    title = ""
+    for word in words:
+        word = word.splitlines()[0] #drop new line
+        if itr == 0:
+            customer = word
+            itr += 1
+        elif itr == 1:
+            title = word
+            itr += 1
+        else:
+            title = title + " " + word
+            itr += 1
+    return (customer, title)
+
+def postTicket(ticket: str) -> int:
+    customer, title = parseTicket(ticket)
+    resultFailure = createTicket(customer, title)
+    if resultFailure:
+        return ticket
+    return 0
+
 
 ### Main script function
-def main():
+if __name__ == "__main__":
     tickets = readTickets(ticketFilePath)
     failedTickets = submitTickets(tickets)
     writeFailedTickets(ticketFilePath, failedTickets)
-
-### make it run
-main()
