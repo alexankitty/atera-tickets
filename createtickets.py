@@ -1,10 +1,13 @@
 import requests
+from joblib import Parallel, delayed
 ## Script Vars
 apifile = open("apikey")
 ticketFilePath = "tickets.txt"
 apikey = apifile.read()
 ## Used to get the technician ID
-techTicket = 34669
+techTicket = 36530
+techEmail = ""
+jobs = 5
 
 #Globals
 headers = {
@@ -69,16 +72,18 @@ def createTicket(customerName, ticketTitle, techId):
     data = {
         "TicketTitle": ticketTitle,
         "Description": ticketTitle,
-        "TicketPriority": "Low",
-        "TicketImpact": "NoImpact",
-        "TicketStatus": "Open",
-        "TicketType": "Incident",
+        #"TicketPriority": "Low",
+        #"TicketImpact": "NoImpact",
+        #"TicketStatus": "Open",
+        #"TicketType": "Incident",
         "EndUserID": endUserId,
-        "TechnicianContactID": techId
+        #"TechnicianContactID": techId
+        "TechnicianEmail": techEmail
     }
     response = apiPost(ticketsURL, data)
     if response.status_code != requests.codes.created:
-        print(f"{response.status_code}: Failed to create ticket '{ticketTitle}'")
+        print(response)
+        print(f"{response.status_code}: Failed to create ticket '{ticketTitle}.'")
         return 1
     print(f"Created ticket {response.json()['ActionID']} for {ticketTitle} ({endUserCompany}).")
     return 0
@@ -119,7 +124,7 @@ def apiGet(url):
 def apiPost(url, data):
     response = requests.post(url, headers=headers, json=data)
     if response.status_code >= 400:
-        print(f"{response.status_code}: Request failure to {url}")
+        print(f"{response.status_code}: Request failure to {url}. {response.content}")
     return response
 
 
