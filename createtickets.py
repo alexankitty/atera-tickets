@@ -4,7 +4,6 @@ from joblib import Parallel, delayed
 apifile = open("apikey")
 ticketFilePath = "tickets.txt"
 apikey = apifile.read()
-## Used to get the technician ID
 techEmail = "alexandra@techsupportevolved.com"
 jobs = 5
 
@@ -34,7 +33,7 @@ def submitTickets(tickets: list) -> list:
 def writeFailedTickets(filePath: str, tickets: list):
     with open(filePath, 'w') as f:
         for ticket in tickets:
-            f.write(f"{ticket}\n")
+            f.write(f"{ticket}")
 
 def createTicket(customerName: str, ticketTitle: str) -> int:
     endUser = getEndUser(customerName)
