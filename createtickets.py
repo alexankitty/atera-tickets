@@ -98,7 +98,7 @@ def parseTicket(ticket: str) -> tuple:
             title = word.capitalize()
             itr += 1
         else:
-            if word.lower() not in minorWords:
+            if word.lower() not in minorWords and word.upper() != word:
                 word = word.capitalize()
             title = title + " " + word
             itr += 1
