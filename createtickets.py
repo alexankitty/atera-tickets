@@ -1,21 +1,27 @@
 import requests
+import json
 from joblib import Parallel, delayed
 ## Script Vars
-apifile = open("apikey")
-ticketFilePath = "tickets.txt"
-apikey = apifile.read()
-techEmail = "alexandra@techsupportevolved.com"
-jobs = 5
+with open("config.json", "r") as f:
+    config = f.read()
+    config = json.loads(config)
 
 #Globals
 headers = {
     "Accept": "application/json",
-    "X-API-KEY": apikey}
+    "X-API-KEY": config['ApiKey']}
 ## API Endpoints
 ateraAPIv3 = "https://app.atera.com/api/v3/"
 ticketsURL = ateraAPIv3 + "tickets"
 contactsURL = ateraAPIv3 + "contacts"
-
+minorWords =   ['a','after','among','an','and',
+                'around','as','at','before','between',
+                'but','by','by','during','for',
+                'for','in','is','into','nor',
+                'of','off','on','onto','or',
+                'over','per','so','the','through',
+                'to','under','up','via','with',
+                'without','yet']
 ### Functions
 def readTickets(filePath: str) -> list:
     with open(filePath, "r") as f:
@@ -24,7 +30,7 @@ def readTickets(filePath: str) -> list:
 
 def submitTickets(tickets: list) -> list:
     failedTickets = []
-    results = Parallel(n_jobs=jobs)(delayed(postTicket)(ticket) for ticket in tickets)
+    results = Parallel(n_jobs=config['Jobs'])(delayed(postTicket)(ticket) for ticket in tickets)
     for ticket, resultFailure in zip(tickets, results):
         if resultFailure:
             failedTickets.append(ticket)
@@ -47,7 +53,7 @@ def createTicket(customerName: str, ticketTitle: str) -> int:
         "TicketTitle": ticketTitle,
         "Description": ticketTitle,
         "EndUserID": endUserId,
-        "TechnicianEmail": techEmail
+        "TechnicianEmail": config['TechEmail']
     }
     response = apiPost(ticketsURL, data)
     if response.status_code != requests.codes.created:
@@ -84,13 +90,16 @@ def parseTicket(ticket: str) -> tuple:
     title = ""
     for word in words:
         word = word.splitlines()[0] #drop new line
+        word = word.strip() #drop whitespace
         if itr == 0:
             customer = word
             itr += 1
         elif itr == 1:
-            title = word
+            title = word.capitalize()
             itr += 1
         else:
+            if word.lower() not in minorWords:
+                word = word.capitalize()
             title = title + " " + word
             itr += 1
     return (customer, title)
@@ -105,6 +114,6 @@ def postTicket(ticket: str) -> int:
 
 ### Main script function
 if __name__ == "__main__":
-    tickets = readTickets(ticketFilePath)
+    tickets = readTickets(config['TicketPath'])
     failedTickets = submitTickets(tickets)
-    writeFailedTickets(ticketFilePath, failedTickets)
+    writeFailedTickets(config['TicketPath'], failedTickets)
