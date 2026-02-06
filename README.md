@@ -3,8 +3,9 @@ quick and dirty script for mass submitting tickets to the Atera RMM platform wit
 
 # Setup
 Requires Python3.7 or later to be installed, grab it from https://www.python.org/downloads/  
-Run `python -m pip install -r requirements.txt` to install the required libraries.
-Open createtickets.py and change line 7 techEmail to a ticket number you have submitted previously (used to assign tickets to you)  
+Run `python -m pip install -r requirements.txt` to install the required libraries.  
+Copy/rename config.example.json to config.json and put in ApiKey and TechEmail.  
+Using a virtual environment with `python -m venv .venv` is recommended but not required, due to the low quantity of libraries in use.
 
 # Usage
 Grab your API key from https://app.atera.com/new/admin/api and place it in a file called `apikey`  
