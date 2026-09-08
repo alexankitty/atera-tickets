@@ -3,15 +3,17 @@ quick and dirty script for mass submitting tickets to the Atera RMM platform wit
 
 # Setup
 Requires Python3.7 or later to be installed, grab it from https://www.python.org/downloads/
+
 Run `python -m pip install -r requirements.txt` to install the required libraries.
-Copy/rename config.example.json to config.json and put in ApiKey and TechEmail.
+
+Copy/rename config.example.json to config.json and put your work email in the `TechEmail` field in the json file.
+
 Using a virtual environment with `python -m venv .venv` is recommended but not required, due to the low quantity of libraries in use.
 
-# Usage
 > [!NOTE]
 > You may use the legacy `ApiKey` config until 11/10/2026
 
-Grab your API token from https://app.atera.com/new/admin/api and place it in `Token` in the config.example.json file and rename it to config.json
+Grab your API token from https://app.atera.com/new/admin/api and place it in the `Token` field of your config.json
 
 You will need a new token once a year as that is the current longest expiration period. Be sure to save your token somewhere safe as you will not be able to view it again in Atera.
 
@@ -19,7 +21,9 @@ You will need a new token once a year as that is the current longest expiration 
 > The following permissions for the token are required:  
 > Tickets: Read & Write  
 > Contacts: Read  
-> Customers: Read  
+> Customers: Read
+
+# Usage
 
 Fill out a tickets.txt with tickets you want to submit, one ticket per line. Format should be as follows:
 ```
