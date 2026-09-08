@@ -16,13 +16,10 @@ Grab your API token from https://app.atera.com/new/admin/api and place it in Tok
 You will need a new token once a year as that is the current longest expiration period. Be sure to save your token somewhere safe as you will not be able to view it again in Atera.
 
 > [!TIP]
-> The following permissions for the token are required:
->
-> Tickets: Read & Write
->
-> Contacts: Read
->
-> Customers: Read
+> The following permissions for the token are required:  
+> Tickets: Read & Write  
+> Contacts: Read  
+> Customers: Read  
 
 Fill out a tickets.txt with tickets you want to submit, one ticket per line. Format should be as follows:
 ```
