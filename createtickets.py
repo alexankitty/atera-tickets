@@ -6,10 +6,15 @@ with open("config.json", "r") as f:
     config = f.read()
     config = json.loads(config)
 
+use_tokens = "Token" in config
+
 #Globals
 headers = {
-    "Accept": "application/json",
-    "X-API-KEY": config['ApiKey']}
+    "Accept": "application/json"}
+if use_tokens:
+    headers['Authorization'] = f"Bearer {config['Token']}"
+else:
+    headers['X-API-KEY'] = config['ApiKey']
 ## API Endpoints
 ateraAPIv3 = "https://app.atera.com/api/v3/"
 ticketsURL = ateraAPIv3 + "tickets"
